@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chroma Bot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>🌈 Chroma Bot</h1>
+    <p>Type a message and Chroma Bot will respond!</p>
+
+    <!-- Status bar -->
+    <div id="statusBar">
+      <span id="statusProfile">Maya</span> |
+      <span id="statusCracks">0 / 5</span> |
+      <button id="toggleSfx">SFX: On</button>
+    </div>
+
+    <!-- Chatbox -->
+    <div id="chatbox">
+      <div id="messages"></div>
+      <input id="userInput" type="text" placeholder="Say something..." />
+      <button id="sendBtn">Send</button>
+    </div>
+
+    <!-- Crack overlay -->
+    <div id="overlay">
+      <img id="crackImage" src="./assets/Chroma_Logo_With_Background/img/Chroma_1.png" alt="Chroma Logo">
+    </div>
+
+    <!-- Optional audio -->
+    <audio id="glitchSfx" src="./assets/audio/glitch-sfx.wav" preload="auto"></audio>
+
+    <!-- Mode switcher (optional for themes) -->
+    <div id="modes">
+      <button class="mode" data-theme="maya">Maya</button>
+      <button class="mode" data-theme="stanley">Stanley</button>
+      <button class="mode" data-theme="eli">Eli</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
