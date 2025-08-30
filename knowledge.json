@@ -1,0 +1,27 @@
+{
+    "keywords": {
+      "risk": ["hack", "phish", "scam", "attack"],
+      "safe": ["secure", "encrypt", "password", "update"]
+    },
+    "responses": {
+      "intros": {
+        "maya": "🌸 Maya activated — let's stay safe online!",
+        "stanley": "🎩 Stanley here — guiding you through the cracks.",
+        "eli": "⚡ Eli mode engaged — let’s break things carefully."
+      },
+      "help": [
+        "🔐 Use strong passwords and update them often.",
+        "⚠️ Avoid clicking on suspicious links.",
+        "🛡️ Enable two-factor authentication wherever possible.",
+        "📡 Be cautious when using public Wi-Fi."
+      ],
+      "stats": "📊 Current crack integrity levels monitored.",
+      "risk_detected": "⚠️ Risk detected! Crack spreading...",
+      "safe_detected": "✅ Safe behavior detected. Crack healing...",
+      "default": [
+        "Hmm, I’m not sure about that… try 'help' or 'tips'.",
+        "Interesting… could you rephrase?",
+        "I'm still learning  — ask me about online safety."
+      ]
+    }
+  }
