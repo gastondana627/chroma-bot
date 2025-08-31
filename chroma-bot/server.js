@@ -1,60 +1,73 @@
-// chroma-bot/server.js
-import express from "express";
-import bodyParser from "body-parser";
-import fetch from "node-fetch";
-import dotenv from "dotenv";
-import fs from "fs";
+// server.js
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const OpenAI = require('openai');
+const fs = require('fs');
 
-dotenv.config();
 const app = express();
-app.use(bodyParser.json());
+const port = process.env.PORT || 3001;
 
-// Load characters dynamically
+// --- Middleware ---
+app.use(cors()); // Allows requests from your frontend
+app.use(express.json()); // Parses incoming JSON requests
+
+// This line serves all files from the parent directory (Data_Bleed_VSC).
+// This is how your index.html, video, and assets will be accessible.
+app.use(express.static(path.join(__dirname, '..')));
+
+// --- OpenAI Client ---
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// --- Dynamic Character Loader ---
 function loadCharacterConfig(character) {
+  const filePath = path.join(__dirname, 'characters', `${character}.json`);
   try {
-    const data = fs.readFileSync(`./chroma-bot/characters/${character}.json`, "utf-8");
+    const data = fs.readFileSync(filePath, "utf-8");
     return JSON.parse(data);
-  } catch {
+  } catch (error) {
+    console.error(`Could not load character config for: ${character}`, error);
     return null;
   }
 }
 
+// --- API Endpoint ---
 app.post("/api/chat", async (req, res) => {
+  const { message, character } = req.body;
+  
+  if (!message || !character) {
+    return res.status(400).json({ error: "Message and character are required." });
+  }
+
+  let systemPrompt = "You are Chroma Bot, a helpful AI assistant.";
+  const characterConfig = loadCharacterConfig(character);
+
+  if (characterConfig) {
+    systemPrompt = `${characterConfig.name} is a ${characterConfig.role}. Style: ${characterConfig.style}. Lore: ${characterConfig.lore.join(" ")}. If the user makes unsafe decisions, trigger failure mode: ${characterConfig.failure}`;
+  }
+
   try {
-    const { message, character } = req.body;
-
-    // Default fallback
-    let systemPrompt = "You are Chroma Bot, a helpful AI assistant.";
-    const characterConfig = loadCharacterConfig(character);
-
-    if (characterConfig) {
-      systemPrompt = `${characterConfig.name} is a ${characterConfig.role}. Style: ${characterConfig.style}. 
-      Lore: ${characterConfig.lore.join(" ")} 
-      If the user makes unsafe decisions, trigger failure mode: ${characterConfig.failure}`;
-    }
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message }
-        ]
-      })
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message }
+      ],
     });
+    
+    const reply = completion.choices[0].message.content;
+    res.json({ reply });
 
-    const data = await response.json();
-    res.json({ reply: data.choices?.[0]?.message?.content || "..." });
   } catch (err) {
-    console.error("Chat error:", err);
-    res.status(500).json({ reply: "⚠️ System glitch. Try again." });
+    console.error("OpenAI API Error:", err);
+    res.status(500).json({ reply: "⚠️ System glitch. My connection to the AI brain is down." });
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(port, () => {
+  console.log(`✅ Server running at http://localhost:${port}`);
+  console.log(`Serving static files from the root project directory.`);
+});

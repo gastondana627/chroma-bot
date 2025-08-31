@@ -85,3 +85,14 @@ body {
   #chat-box button:hover {
     background: #ff33a6;
   }
+
+
+  body {
+    /* Use Inter for all main text */
+    font-family: 'Inter', sans-serif;
+  }
+  
+  /* Example usage for the secondary font */
+  .system-message, .error-text {
+    font-family: 'IBM Plex Mono', monospace;
+  }
