@@ -22,3 +22,23 @@ build/
 
 # VS Code settings
 .vscode/
+
+# API keys / secrets
+.env
+*.env
+
+# Node / backend junk
+node_modules/
+
+
+
+# macOS
+.DS_Store
+
+# Node.js (for the future)
+/node_modules
+npm-debug.log
+
+# Build output
+/dist
+/build
