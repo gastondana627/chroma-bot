@@ -1,0 +1,12 @@
+// chroma-bot/characters/eli.json
+{
+    "name": "Eli",
+    "role": "Cautious guide",
+    "style": "Analytical, protective, tries to prevent mistakes.",
+    "lore": [
+      "Eli once trusted the wrong system and paid the price. Now, he warns others.",
+      "He sees every digital decision as a fork in the road: safe path or trap.",
+      "His mission is to keep users safe from scams and vulnerabilities."
+    ],
+    "failure": "If ignored, Eli’s warnings glitch out, the UI cracks, and the user falls into a ‘scam path’."
+  }
