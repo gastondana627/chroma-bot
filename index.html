@@ -1,19 +1,268 @@
+<!-- chroma-bot/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🌈 Chroma Bot</title>
+  <title>Chroma Bot</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      color: white;
+    }
+
+    /* Fireworks canvas */
+    #fireworks {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    /* Video container (quarter sized bottom right) */
+    #video-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      cursor: pointer;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 0 12px rgba(255,255,255,0.3);
+      transition: transform 0.3s ease;
+      z-index: 10;
+    }
+    #video-container:hover {
+      transform: scale(1.15);
+    }
+
+    #chroma-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Chat Window */
+    #chat-box {
+      position: fixed;
+      bottom: 120px;
+      right: 20px;
+      width: 280px;
+      height: 380px;
+      background: rgba(20,20,20,0.92);
+      border: 2px solid #fff;
+      border-radius: 12px;
+      display: none;
+      flex-direction: column;
+      padding: 10px;
+      z-index: 20;
+    }
+    #chat-box header {
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      position: relative;
+    }
+    #chat-box header button {
+      position: absolute;
+      right: 0;
+      top: 0;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #chat-box .messages {
+      flex: 1;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+    #chat-box form {
+      display: flex;
+      margin-top: 8px;
+    }
+    #chat-box input {
+      flex: 1;
+      padding: 6px;
+      border: none;
+      border-radius: 6px;
+    }
+    #chat-box button {
+      margin-left: 6px;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      background: #ff0080;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #chat-box button:hover {
+      background: #ff33a6;
+    }
+  </style>
 </head>
 <body>
-  <div id="chatbot">
-    <img id="bot-icon" src="chroma-bot/assets/images/Chroma_Org_Logo_No_Background/Chroma_1.png" alt="Chroma Bot">
-    <div id="chatbox" class="hidden">
-      <div id="chat-log"></div>
-      <input type="text" id="user-input" placeholder="Type your message...">
-    </div>
+  <!-- Fireworks animation background -->
+  <canvas id="fireworks"></canvas>
+
+  <!-- Video Container -->
+  <div id="video-container">
+    <video id="chroma-video" autoplay loop muted playsinline>
+      <source src="./chroma-bot/assets/vid/Chroma_Vid.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Chat Box -->
+  <div id="chat-box">
+    <header>
+      💬 Chroma Bot
+      <button id="close-chat">✖</button>
+    </header>
+    <div class="messages" id="messages">
+      <p><b>Bot:</b> Hi! Click the logo anytime to chat 🎆</p>
+    </div>
+    <form id="chat-form">
+      <input type="text" id="userInput" placeholder="Type a message..." required>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    const video = document.getElementById("chroma-video");
+    const videoContainer = document.getElementById("video-container");
+    const chatBox = document.getElementById("chat-box");
+    const chatForm = document.getElementById("chat-form");
+    const userInput = document.getElementById("userInput");
+    const messages = document.getElementById("messages");
+    const closeChat = document.getElementById("close-chat");
+
+    // Toggle chatbot when clicking the video
+    videoContainer.addEventListener("click", () => {
+      video.pause();
+      videoContainer.style.display = "none"; 
+      chatBox.style.display = "flex";        
+    });
+
+    // Close chatbot and resume video
+    closeChat.addEventListener("click", () => {
+      chatBox.style.display = "none";
+      videoContainer.style.display = "block";
+      video.play();
+      video.loop = true;
+    });
+
+    // Add messages to chat
+    function addMessage(sender, text) {
+      const msg = document.createElement("p");
+      msg.innerHTML = `<b>${sender}:</b> ${text}`;
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Placeholder bot response
+    async function getBotResponse(userMessage) {
+      const lower = userMessage.toLowerCase();
+      if (lower.includes("hello") || lower.includes("hi")) {
+        return "Hey there 👋, welcome to Chroma!";
+      }
+      if (lower.includes("help")) {
+        return "I can answer simple questions for now. Datasets coming soon 🌈";
+      }
+      return "Hmm, I don’t know that yet… but I’m learning 🎇";
+    }
+
+    // Handle chat form submit
+    if (chatForm) {
+      chatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        addMessage("You", text);
+        userInput.value = "";
+
+        const reply = await getBotResponse(text);
+        addMessage("Bot", reply);
+      });
+    }
+
+    // Fireworks animation
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    class Firework {
+      constructor(x, y, color, velocity) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.velocity = velocity;
+        this.alpha = 1;
+        this.radius = 2;
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      update() {
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+        this.alpha -= 0.01;
+        this.draw();
+      }
+    }
+
+    let fireworks = [];
+    function createFirework(x, y) {
+      const colors = ["#ff0000","#00ff00","#0000ff","#ffff00","#ff00ff","#00ffff"];
+      for (let i = 0; i < 50; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 4 + 1;
+        fireworks.push(
+          new Firework(x, y, colors[Math.floor(Math.random() * colors.length)], {
+            x: Math.cos(angle) * speed,
+            y: Math.sin(angle) * speed
+          })
+        );
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      ctx.fillStyle = "rgba(0,0,0,0.2)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      fireworks.forEach((f, i) => {
+        f.update();
+        if (f.alpha <= 0) fireworks.splice(i, 1);
+      });
+    }
+
+    window.addEventListener("click", (e) => {
+      createFirework(e.clientX, e.clientY);
+    });
+
+    animate();
+  </script>
 </body>
 </html>

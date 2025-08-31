@@ -1,0 +1,11 @@
+{
+    "states": {
+      "normal": "./chroma-bot/assets/images/Chroma_Org_Logo_No_Background/ChromaAwards_LogoBeige_Vector_copy.png",
+      "tired": "./chroma-bot/assets/images/Chroma_Org_Logo_No_Background/Chroma_Tired.png",
+      "broken": "./chroma-bot/assets/images/Chroma_Org_Logo_No_Background/Chroma_1.png"
+    },
+    "thresholds": {
+      "wrongAnswers": 3,
+      "critical": 5
+    }
+  }
