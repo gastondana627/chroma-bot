@@ -1,39 +1,14 @@
-# Chroma Bot Storyline
+📖 Project README (Updated)
 
-This repository contains the **Chroma Bot UI & Breaking Sequence Prototype**.  
-It is currently developed **standalone** to allow for fast iteration, testing, and deployment.  
-Later, this repo can be merged into the main game repository as a module.
+🚀 Overview
 
+This project is a Chroma Bot AI Chat Experience with:
+	•	FastAPI backend (AI responses via OpenAI).
+	•	Node/Express (server.js) serving static files for local testing & Vercel deployment.
+	•	Frontend animations (Chroma logo animation + fireworks).
+	•	Story arcs with potential “scam” failure sequences (logo breaking).
 
-## Repository Structure
-bot-storyline/
-│
-├── README.md               # Documentation for repo
-├── docs/                   # Notes, diagrams, planning
-│   └── project-plan.md
-│
-├── src/                    # Core source code
-│   ├── index.html          # Entry point
-│   ├── main.js             # Your scripts
-│   ├── styles.css          # Styling
-│   └── scenes/             # VR/3D scenes
-│       └── chroma-scene.js
-│
-├── assets/                 # All media assets
-│   ├── images/
-│   │   ├── chroma_break_1.png
-│   │   ├── chroma_break_2.png
-│   │   ├── chroma_break_3.png
-│   │   ├── chroma_break_4.png
-│   │   └── chroma_break_5.png
-│   ├── audio/
-│   │   └── glitch-sfx.wav
-│   └── models/             # (Optional 3D models)
-│
-└── package.json            # Node dependencies (if using A-Frame/Three.js)
-
-
-
+Currently tested locally on MacOS + Python 3.12 + Node.js.
 
 ---
 
@@ -60,3 +35,61 @@ bot-storyline/
 - Scaffold a simple A-Frame scene in `src/index.html`.  
 - Test UI cracking logic in isolation before merging with main game.
 
+
+## Workflow structure
+Data_Bleed_VSC/
+│── chroma-bot/          # Frontend (static files, served by Node.js or Vercel)
+│   ├── assets/          # Images, video, configs
+│   ├── script.js        # Main frontend logic (chat + fireworks + state logic)
+│   ├── chatbot.html     # Chatbot UI
+│   └── server.js        # Node server for local static hosting
+│
+│── main.py              # FastAPI backend for AI responses
+│── .env                 # Environment variables (API keys)
+│── venv/                # Python virtual environment
+
+
+🔑 Environment Variables
+
+Create a file named .env inside chroma-bot/ or project root:
+OPENAI_API_KEY=sk-xxxxxx
+
+🖥️ Local Development
+
+1. Setup Python (FastAPI backend)
+cd ~/Downloads/Data_Bleed_VSC
+python3 -m venv venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+Run FastAPI:
+uvicorn main:app --reload --port 3001
+
+You should see:
+✅ OPENAI_API_KEY loaded successfully.
+Uvicorn running on http://127.0.0.1:3001
+
+
+2. Setup Node (Frontend static files)
+
+cd ~/Downloads/Data_Bleed_VSC/chroma-bot
+npm install
+node server.js
+
+You should see:
+✅ Server running at http://localhost:3001
+
+3. Open in Browser
+
+Go to:
+👉 http://localhost:3001/chatbot.html
+
+
+✨ Features
+
+✅ Already Working
+	•	Frontend chat box (script.js) with AI backend fallback.
+	•	Fireworks animation on click.
+	•	State transitions (normal → tired → broken).
+	•	FastAPI successfully connected to OpenAI API.
