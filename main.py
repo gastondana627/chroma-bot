@@ -1,45 +1,58 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+# main.py
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import openai, os
+import os
+from openai import OpenAI
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    print("❌ OPENAI_API_KEY not found! Check your .env or export it before running FastAPI.")
+else:
+    print("✅ OPENAI_API_KEY loaded successfully.")
+
+client = OpenAI(api_key=api_key)
+
+# FastAPI app setup
 app = FastAPI()
 
-# Serve static files (index.html, assets, etc.)
-app.mount("/assets", StaticFiles(directory="chroma-bot/assets"), name="assets")
+# Allow frontend (Node/Vercel/localhost) to talk to backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # during dev, allow all
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/")
-async def root():
-    return FileResponse("index.html")
-
+# Request model
 class ChatRequest(BaseModel):
     message: str
     character: str
 
 @app.post("/api/chat")
-async def chat_endpoint(req: ChatRequest):
-    arcs = {
-        "maya": "You are Maya, a curious but cautious explorer trapped in a digital labyrinth.",
-        "eli": "You are Eli, a pragmatic but haunted engineer who mistrusts the AI.",
-        "stanley": "You are Stanley, the reluctant archivist who knows too much about Chroma's secrets."
-    }
-
-    system_prompt = arcs.get(req.character, "You are a mysterious AI entity.")
+async def chat(req: ChatRequest):
+    character = req.character
+    user_message = req.message
+    print(f"[{character}] User: {user_message}")
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",  # efficient & cheap for dev
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": req.message}
-            ]
+                {"role": "system", "content": f"You are {character}. Stay in character and respond only with their style and lore."},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=200,
+            temperature=0.8
         )
-        reply = response["choices"][0]["message"]["content"]
-        return JSONResponse({"reply": reply})
+        reply = response.choices[0].message.content
+        print(f"[{character}] Bot: {reply}")
+        return {"reply": reply}
     except Exception as e:
-        return JSONResponse({"reply": f"Error: {str(e)}"}, status_code=500)
+        print("❌ Error in /api/chat:", e)
+        return {"reply": "⚠️ Backend error, please try again later."}
